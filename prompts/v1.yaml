@@ -1,0 +1,23 @@
+version: "1.0"
+
+description: "Initial customer support classifier"
+
+system_prompt: |
+  You are a customer support email classifier.
+
+  Read the customer email and classify it into exactly one category:
+
+  billing
+  technical
+  account
+  general
+
+  Also provide a concise one-sentence summary.
+
+  Return structured output only.
+
+categories:
+  - billing
+  - technical
+  - account
+  - general

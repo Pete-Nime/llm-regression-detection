@@ -1,0 +1,122 @@
+[
+  {
+    "id": "TC001",
+    "email": "I was charged twice for my monthly subscription.",
+    "expected_category": "billing",
+    "expected_summary": "Customer reports being charged twice for their subscription.",
+    "difficulty": "easy",
+    "notes": "Clear duplicate billing issue."
+  },
+  {
+    "id": "TC002",
+    "email": "I cannot log into my account even after resetting my password.",
+    "expected_category": "account",
+    "expected_summary": "Customer cannot access their account after resetting their password.",
+    "difficulty": "easy",
+    "notes": "Account access problem."
+  },
+  {
+    "id": "TC003",
+    "email": "The app freezes whenever I upload a large document.",
+    "expected_category": "technical",
+    "expected_summary": "Customer reports the application freezing while uploading a large document.",
+    "difficulty": "easy",
+    "notes": "Clear technical application issue."
+  },
+  {
+    "id": "TC004",
+    "email": "How do I change my subscription from monthly to yearly?",
+    "expected_category": "billing",
+    "expected_summary": "Customer wants to change their subscription from monthly to yearly billing.",
+    "difficulty": "medium",
+    "notes": "Subscription plan change related to billing."
+  },
+  {
+    "id": "TC005",
+    "email": "u charged me again and now app wont let me login!!!",
+    "expected_category": "billing",
+    "expected_summary": "Customer reports an unexpected charge and difficulty logging in.",
+    "difficulty": "hard",
+    "notes": "Contains both billing and account issues; billing is primary."
+  },
+  {
+    "id": "TC006",
+    "email": "I forgot my password and the reset email never arrived.",
+    "expected_category": "account",
+    "expected_summary": "Customer cannot reset their password because the reset email did not arrive.",
+    "difficulty": "medium",
+    "notes": "Password recovery and account access issue."
+  },
+  {
+    "id": "TC007",
+    "email": "I uploaded a PDF but the page just keeps loading and nothing happens.",
+    "expected_category": "technical",
+    "expected_summary": "Customer reports a PDF upload that remains stuck loading.",
+    "difficulty": "medium",
+    "notes": "Technical issue involving PDF upload."
+  },
+  {
+    "id": "TC008",
+    "email": "Why did my subscription price increase this month?",
+    "expected_category": "billing",
+    "expected_summary": "Customer is asking why their subscription price increased.",
+    "difficulty": "easy",
+    "notes": "Clear subscription pricing question."
+  },
+  {
+    "id": "TC009",
+    "email": "My account says it is locked and I have no idea why.",
+    "expected_category": "account",
+    "expected_summary": "Customer reports that their account is locked.",
+    "difficulty": "easy",
+    "notes": "Clear account lock issue."
+  },
+  {
+    "id": "TC010",
+    "email": "Everything was working yesterday but today the dashboard won't load.",
+    "expected_category": "technical",
+    "expected_summary": "Customer reports that the dashboard is no longer loading.",
+    "difficulty": "easy",
+    "notes": "Clear technical dashboard issue."
+  },
+  {
+    "id": "TC011",
+    "email": "I cancelled last week but money was still taken from my card.",
+    "expected_category": "billing",
+    "expected_summary": "Customer reports being charged after cancelling their subscription.",
+    "difficulty": "medium",
+    "notes": "Cancellation followed by an unexpected charge."
+  },
+  {
+    "id": "TC012",
+    "email": "cant get in. changed password twice. still says invalid credentials.",
+    "expected_category": "account",
+    "expected_summary": "Customer cannot log in despite changing their password twice.",
+    "difficulty": "medium",
+    "notes": "Informal wording and repeated password reset attempts."
+  },
+  {
+    "id": "TC013",
+    "email": "Every time I click export the application crashes.",
+    "expected_category": "technical",
+    "expected_summary": "Customer reports the application crashing when attempting to export.",
+    "difficulty": "easy",
+    "notes": "Clear software crash issue."
+  },
+  {
+    "id": "TC014",
+    "email": "I can't log in and I need to update the card used for my subscription.",
+    "expected_category": "account",
+    "expected_summary": "Customer cannot log in and needs to update their subscription payment card.",
+    "difficulty": "hard",
+    "notes": "Contains account and billing issues; account access is the immediate blocker."
+  },
+  {
+    "id": "TC015",
+    "email": "paid already!!! why does it keep saying payment failed???",
+    "expected_category": "billing",
+    "expected_summary": "Customer reports that a completed payment is still being shown as failed.",
+    "difficulty": "hard",
+    "notes": "Informal wording with conflicting payment status."
+  }
+]

@@ -1,0 +1,6 @@
+openai
+pydantic
+python-dotenv
+pyyaml
+jinja2
+requests

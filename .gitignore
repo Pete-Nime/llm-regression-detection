@@ -1,0 +1,15 @@
+# Secrets - NEVER upload API keys
+.env
+
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Local SQLite database
+history/*.db

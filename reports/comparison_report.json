@@ -1,0 +1,38 @@
+{
+  "baseline_prompt": "v1",
+  "current_prompt": "v2",
+  "baseline_accuracy": 93.33,
+  "current_accuracy": 93.33,
+  "accuracy_delta": 0.0,
+  "accuracy_drop_percent": 0.0,
+  "regression_count": 1,
+  "improvement_count": 1,
+  "unchanged_pass_count": 13,
+  "unchanged_fail_count": 0,
+  "status": "WARNING",
+  "reasons": [
+    "Summary score 3.13 is below minimum 4.00."
+  ],
+  "regressions": [
+    {
+      "test_id": "TC005",
+      "baseline_category": "billing",
+      "current_category": "account",
+      "expected_category": "billing",
+      "baseline_passed": true,
+      "current_passed": false,
+      "change": "REGRESSION"
+    }
+  ],
+  "improvements": [
+    {
+      "test_id": "TC004",
+      "baseline_category": "account",
+      "current_category": "billing",
+      "expected_category": "billing",
+      "baseline_passed": false,
+      "current_passed": true,
+      "change": "IMPROVEMENT"
+    }
+  ]
+}
