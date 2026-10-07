@@ -37,6 +37,12 @@ jobs:
             reports/evaluation_v1.json \
             reports/evaluation_v2.json
 
+      - name: Send Slack regression alert
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          python -m src.slack_notifier
+
       - name: Run regression gate
         run: |
           python -m src.ci_gate
