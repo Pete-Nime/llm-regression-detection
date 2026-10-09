@@ -25,11 +25,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-          # Run unit tests with a dummy key.
-          # All external OpenAI calls are mocked in our tests.
+      # Unit tests use mocked OpenAI responses.
+      # No API credentials are needed during test collection.
       - name: Run automated unit tests
-        env:
-          OPENAI_API_KEY: "test-key-not-real"
         run: |
           python -m pytest tests/ -v
 

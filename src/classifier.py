@@ -11,14 +11,6 @@ from src.models import ClassificationResult
 # Load Environment Variables
 # ============================================================
 
-# Load OPENAI_API_KEY from the .env file.
-load_dotenv()
-
-# Create the OpenAI client.
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
-
 
 # ============================================================
 # Email Classification Function
@@ -70,6 +62,15 @@ Do not include extra text outside the JSON object.
     # --------------------------------------------------------
     # Send request to OpenAI
     # --------------------------------------------------------
+    # Load local environment variables only when needed.
+    load_dotenv()
+    
+    # Create the OpenAI client only when classification runs.
+    # This prevents unit-test imports from requiring credentials.
+    client = OpenAI(
+        api_key=os.getenv("OPENAI_API_KEY")
+    )
+
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         temperature=0,
