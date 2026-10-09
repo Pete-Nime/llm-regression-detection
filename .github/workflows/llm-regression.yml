@@ -25,6 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+            # Test our Python regression gate before calling the LLM
+      - name: Run automated unit tests
+        run: |
+          python -m pytest tests/ -v
+
       - name: Evaluate prompt v2
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
