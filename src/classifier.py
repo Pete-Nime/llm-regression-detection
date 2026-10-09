@@ -45,16 +45,16 @@ def classify_email(
     # Because we are using response_format={"type": "json_object"},
     # we explicitly tell the model to return JSON.
     json_instruction = """
-Return your answer as JSON using exactly this structure:
+    Return your answer as JSON using exactly this structure:
 
-{
-    "category": "billing | technical | account | general",
-    "summary": "short summary of the customer's issue"
-}
+    {
+        "category": "billing | technical | account | general",
+        "summary": "short summary of the customer's issue"
+    }
 
-Do not include markdown.
-Do not include extra text outside the JSON object.
-"""
+    Do not include markdown.
+    Do not include extra text outside the JSON object.
+    """
 
     # Combine our original prompt with the JSON instructions.
     full_system_prompt = system_prompt + "\n\n" + json_instruction
@@ -64,11 +64,26 @@ Do not include extra text outside the JSON object.
     # --------------------------------------------------------
     # Load local environment variables only when needed.
     load_dotenv()
-    
+
+    # ============================================================
+    # Phase 10F — Production API Reliability
+    # ============================================================
+
     # Create the OpenAI client only when classification runs.
-    # This prevents unit-test imports from requiring credentials.
+    # This avoids requiring credentials during unit-test imports.
+    #
+    # max_retries=3:
+    # Retry temporary API failures up to three times.
+    #
+    # timeout=30.0:
+    # Limit how long an individual request attempt can wait.
+    #
+    # The OpenAI SDK handles retry delays automatically.
+
     client = OpenAI(
-        api_key=os.getenv("OPENAI_API_KEY")
+        api_key=os.getenv("OPENAI_API_KEY"),
+        max_retries=3,
+        timeout=30.0,
     )
 
     response = client.chat.completions.create(
