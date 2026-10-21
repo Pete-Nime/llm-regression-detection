@@ -1,3 +1,4 @@
+
 name: LLM Regression Detection
 
 on:
@@ -12,53 +13,125 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # STEP 1: Download the repository.
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      # STEP 2: Install Python.
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
+      # STEP 3: Install project dependencies.
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
-      # Unit tests use mocked OpenAI responses.
-      # No API credentials are needed during test collection.
+      # STEP 4: Run all automated tests.
+      # These should not require live OpenAI API calls.
       - name: Run automated unit tests
         run: |
           python -m pytest tests/ -v
 
+      # STEP 5: Create configuration snapshots.
+      # Both snapshots use the same declared model settings.
+      - name: Generate configuration snapshots
+        run: |
+          python - <<'PY'
+          from src.snapshot_manager import create_snapshot
+
+          model_config = {
+              "model": "gpt-4o-mini",
+              "temperature": 0,
+              "max_retries": 3,
+              "timeout": 30.0,
+              "response_format": {
+                  "type": "json_object"
+              }
+          }
+
+          create_snapshot(
+              "prompts/v1.yaml",
+              model_config,
+              "snapshots/baseline/v1.json"
+          )
+
+          create_snapshot(
+              "prompts/v2.yaml",
+              model_config,
+              "snapshots/candidate/v2.json"
+          )
+
+          print("Configuration snapshots generated.")
+          PY
+
+      # STEP 6: Evaluate the candidate prompt.
       - name: Evaluate prompt v2
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           python -m src.evaluator v2
 
+      # STEP 7: Compare baseline and candidate behaviour.
       - name: Compare v1 vs v2
         run: |
           python -m src.run_comparison \
             reports/evaluation_v1.json \
             reports/evaluation_v2.json
 
+      # STEP 8: Combine drift and regression results.
+      - name: Generate unified Phase 2 report
+        run: |
+          python - <<'PY'
+          from src.unified_report import generate_unified_report
+
+          report = generate_unified_report(
+              "reports/evaluation_v1.json",
+              "reports/evaluation_v2.json",
+              "snapshots/baseline/v1.json",
+              "snapshots/candidate/v2.json",
+              "reports/unified_report.json"
+          )
+
+          print(
+              "Drift detected:",
+              report["configuration_drift"]["drift_detected"]
+          )
+          print(
+              "Regressions:",
+              report["regression_analysis"]["regression_count"]
+          )
+          print(
+              "Release status:",
+              report["release_status"]
+          )
+          PY
+
+      # STEP 9: Notify Slack.
       - name: Send Slack regression alert
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           python -m src.slack_notifier
 
+      # STEP 10: Apply existing release gate.
       - name: Run regression gate
         run: |
           python -m src.ci_gate
 
+      # STEP 11: Upload reports, even when earlier steps fail.
       - name: Upload regression reports
         if: always()
         uses: actions/upload-artifact@v5
         with:
           name: llm-regression-report
+          if-no-files-found: warn
           path: |
             reports/evaluation_v2.json
             reports/comparison_report.json
             reports/evaluation_report.html
+            reports/unified_report.json
+            snapshots/baseline/v1.json
+            snapshots/candidate/v2.json
