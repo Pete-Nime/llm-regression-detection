@@ -16,3 +16,7 @@ history/*.db
 
 # Pytest cache
 .pytest_cache/
+
+# Phase 2 generated artifacts
+reports/unified_report.json
+snapshots/
