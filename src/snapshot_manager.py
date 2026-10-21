@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
+from src.config import get_model_config
 
 
 def create_snapshot(
@@ -55,6 +56,12 @@ def create_snapshot(
         raise ValueError(
             "Prompt YAML must contain a configuration dictionary."
         )
+
+    # Use the actual shared configuration by default.
+    # Explicit configurations remain supported for existing
+    # tests and historical comparisons.
+    if model_config is None:
+        model_config = get_model_config()
 
     # STEP 5: Build our snapshot.
     snapshot = {

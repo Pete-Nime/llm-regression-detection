@@ -35,29 +35,27 @@ jobs:
         run: |
           python -m pytest tests/ -v
 
+      
       # STEP 5: Create configuration snapshots.
-      # Both snapshots use the same declared model settings.
+      # Read model settings from src/config.py instead of
+      # manually duplicating them in this workflow.
       - name: Generate configuration snapshots
         run: |
           python - <<'PY'
+          from src.config import get_model_config
           from src.snapshot_manager import create_snapshot
 
-          model_config = {
-              "model": "gpt-4o-mini",
-              "temperature": 0,
-              "max_retries": 3,
-              "timeout": 30.0,
-              "response_format": {
-                  "type": "json_object"
-              }
-          }
+          # Load the same configuration used by our classifier.
+          model_config = get_model_config()
 
+          # Capture the baseline prompt and model settings.
           create_snapshot(
               "prompts/v1.yaml",
               model_config,
               "snapshots/baseline/v1.json"
           )
 
+          # Capture the candidate prompt and model settings.
           create_snapshot(
               "prompts/v2.yaml",
               model_config,
@@ -65,6 +63,7 @@ jobs:
           )
 
           print("Configuration snapshots generated.")
+          print("Model configuration:", model_config)
           PY
 
       # STEP 6: Evaluate the candidate prompt.

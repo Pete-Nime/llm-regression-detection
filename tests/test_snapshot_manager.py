@@ -94,3 +94,46 @@ def test_prompt_change_produces_new_hash(tmp_path):
     # Even though the version number stayed the same,
     # the SHA-256 hashes should differ.
     assert original["prompt_sha256"] != modified["prompt_sha256"]
+
+
+def test_snapshot_uses_shared_model_configuration(tmp_path):
+    """
+    Verify that the Snapshot Manager automatically captures
+    the configuration defined in src/config.py.
+
+    Why:
+        If an engineer changes the model settings, the
+        snapshot must record those same settings.
+    """
+
+    # Import the function we're testing.
+    from src.snapshot_manager import create_snapshot
+
+    # Import our central configuration.
+    from src.config import get_model_config
+
+    # STEP 1: Create a temporary YAML prompt.
+    prompt_file = tmp_path / "test_prompt.yaml"
+
+    prompt_file.write_text(
+        "version: v2\nsystem_prompt: Test prompt\n",
+        encoding="utf-8",
+    )
+
+    # STEP 2: Choose where the snapshot will be saved.
+    snapshot_file = tmp_path / "snapshot.json"
+
+    # STEP 3: Ask the Snapshot Manager to automatically
+    # retrieve the shared configuration.
+    snapshot = create_snapshot(
+        prompt_path=str(prompt_file),
+        model_config=None,
+        output_path=str(snapshot_file),
+    )
+
+    # STEP 4: Verify the recorded configuration matches
+    # our central configuration exactly.
+    assert snapshot["model_config"] == get_model_config()
+
+    # STEP 5: Verify the snapshot was saved.
+    assert snapshot_file.exists()
