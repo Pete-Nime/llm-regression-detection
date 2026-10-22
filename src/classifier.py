@@ -1,19 +1,20 @@
+
 import json
 import os
 
 from dotenv import load_dotenv
 from openai import OpenAI
 
+# Import our shared model configuration.
+from src.config import get_model_config
+
+# Import our Pydantic model for validating AI responses.
 from src.models import ClassificationResult
 
 
 # ============================================================
-# Load Environment Variables
-# ============================================================
-
-
-# ============================================================
-# Email Classification Function
+# LLM REGRESSION DETECTION
+# Customer Email Classification
 # ============================================================
 
 def classify_email(
@@ -21,29 +22,33 @@ def classify_email(
     prompt_config: dict
 ) -> ClassificationResult:
     """
-    Classify a customer email using an LLM.
+    Classify a customer email using an OpenAI language model.
 
-    Input:
+    Args:
         email_text:
-            The customer's email/message.
+            The customer's email or message.
 
         prompt_config:
-            Instructions loaded from our YAML prompt file.
+            Instructions loaded from a YAML prompt file.
 
-    Output:
+    Returns:
         ClassificationResult containing:
             - category
             - summary
     """
 
-    # Get the system prompt from our YAML configuration.
+    # ========================================================
+    # STEP 1 — Read the system prompt
+    # ========================================================
+
+    # Retrieve the system instructions from our YAML file.
     system_prompt = prompt_config["system_prompt"]
 
-    # --------------------------------------------------------
-    # JSON Instructions
-    # --------------------------------------------------------
-    # Because we are using response_format={"type": "json_object"},
-    # we explicitly tell the model to return JSON.
+    # ========================================================
+    # STEP 2 — Define JSON response instructions
+    # ========================================================
+
+    # Tell the AI exactly how to structure its response.
     json_instruction = """
     Return your answer as JSON using exactly this structure:
 
@@ -56,42 +61,61 @@ def classify_email(
     Do not include extra text outside the JSON object.
     """
 
-    # Combine our original prompt with the JSON instructions.
-    full_system_prompt = system_prompt + "\n\n" + json_instruction
+    # Combine the original prompt with JSON instructions.
+    full_system_prompt = (
+        system_prompt + "\n\n" + json_instruction
+    )
 
-    # --------------------------------------------------------
-    # Send request to OpenAI
-    # --------------------------------------------------------
-    # Load local environment variables only when needed.
+    # ========================================================
+    # STEP 3 — Load environment variables
+    # ========================================================
+
+    # Load the OPENAI_API_KEY from our .env file.
+    # This happens only when classification is called.
     load_dotenv()
 
-    # ============================================================
-    # Phase 10F — Production API Reliability
-    # ============================================================
+    # ========================================================
+    # STEP 4 — Load shared model configuration
+    # ========================================================
 
-    # Create the OpenAI client only when classification runs.
-    # This avoids requiring credentials during unit-test imports.
+    # Read the settings from src/config.py.
     #
-    # max_retries=3:
-    # Retry temporary API failures up to three times.
+    # This prevents us from manually defining model
+    # settings in multiple Python files.
     #
-    # timeout=30.0:
-    # Limit how long an individual request attempt can wait.
+    # Our snapshot manager will also use this configuration.
+
+    config = get_model_config()
+
+    # ========================================================
+    # STEP 5 — Create the OpenAI client
+    # ========================================================
+
+    # Use the shared reliability settings.
     #
-    # The OpenAI SDK handles retry delays automatically.
+    # max_retries:
+    # Number of automatic retries for supported failures.
+    #
+    # timeout:
+    # Request timeout configuration.
 
     client = OpenAI(
         api_key=os.getenv("OPENAI_API_KEY"),
-        max_retries=3,
-        timeout=30.0,
+        max_retries=config["max_retries"],
+        timeout=config["timeout"],
     )
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        temperature=0,
+    # ========================================================
+    # STEP 6 — Send the classification request
+    # ========================================================
 
-        # Force the model to return a JSON object.
-        response_format={"type": "json_object"},
+    # Use the shared model and generation settings.
+    response = client.chat.completions.create(
+        model=config["model"],
+        temperature=config["temperature"],
+
+        # Require a JSON object response.
+        response_format=config["response_format"],
 
         messages=[
             {
@@ -105,21 +129,26 @@ def classify_email(
         ],
     )
 
-    # --------------------------------------------------------
-    # Read AI Response
-    # --------------------------------------------------------
+    # ========================================================
+    # STEP 7 — Read the AI response
+    # ========================================================
 
-    # Get the JSON text returned by the AI.
+    # Extract the response content.
     raw_output = response.choices[0].message.content
 
-    # Convert JSON text into a Python dictionary.
+    # Convert the JSON string into a Python dictionary.
     result = json.loads(raw_output)
 
-    # --------------------------------------------------------
-    # Validate Response
-    # --------------------------------------------------------
+    # ========================================================
+    # STEP 8 — Validate the AI response
+    # ========================================================
 
-    # Pydantic checks that:
-    # category = billing / technical / account / general
-    # summary = string
+    # Pydantic validates the expected result structure.
+    #
+    # category:
+    # billing, technical, account or general
+    #
+    # summary:
+    # A short text description of the issue.
+
     return ClassificationResult(**result)
