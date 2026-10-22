@@ -7,6 +7,7 @@ prompt/model performance over time.
 """
 
 import sqlite3
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -68,6 +69,18 @@ def initialize_database():
         """
     )
 
+ # Check which columns already exist in the database.
+    cursor.execute("PRAGMA table_info(evaluation_runs)")
+    columns = {
+        row[1] for row in cursor.fetchall()
+    }
+
+# Add model_config only if it does not already exist.
+    if "model_config" not in columns:
+        cursor.execute(
+            "ALTER TABLE evaluation_runs ADD COLUMN model_config TEXT"
+        )
+
     connection.commit()
     connection.close()
 
@@ -84,7 +97,8 @@ def save_evaluation_run(
     incorrect,
     accuracy_percent,
     average_summary_score,
-    average_latency_ms
+    average_latency_ms,
+    model_config=None
 ):
     """
     Save one evaluation run into SQLite.
@@ -109,32 +123,33 @@ def save_evaluation_run(
     created_at = datetime.now(timezone.utc).isoformat()
 
     cursor.execute(
-        """
-        INSERT INTO evaluation_runs (
-            created_at,
-            prompt_version,
-            model,
-            total_tests,
-            correct,
-            incorrect,
-            accuracy_percent,
-            average_summary_score,
-            average_latency_ms
-        )
-
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            created_at,
-            prompt_version,
-            model,
-            total_tests,
-            correct,
-            incorrect,
-            accuracy_percent,
-            average_summary_score,
-            average_latency_ms
-        )
+    """
+    INSERT INTO evaluation_runs (
+        created_at,
+        prompt_version,
+        model,
+        total_tests,
+        correct,
+        incorrect,
+        accuracy_percent,
+        average_summary_score,
+        average_latency_ms,
+        model_config
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """,
+    (
+        created_at,
+        prompt_version,
+        model,
+        total_tests,
+        correct,
+        incorrect,
+        accuracy_percent,
+        average_summary_score,
+        average_latency_ms,
+        json.dumps(model_config) if model_config is not None else None
+    )
     )
 
     connection.commit()

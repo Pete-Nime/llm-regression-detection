@@ -24,6 +24,7 @@ import yaml
 
 from src.classifier import classify_email
 from src.history import save_evaluation_run
+from src.config import get_model_config
 
 
 # ============================================================
@@ -231,6 +232,8 @@ def run_evaluation(prompt_version):
     Evaluate one prompt version against
     the complete golden dataset.
     """
+    # Read the model settings used by our classifier.
+    model_config = get_model_config()
 
     print("\n========================================")
     print("      LLM REGRESSION EVALUATION")
@@ -371,8 +374,10 @@ def run_evaluation(prompt_version):
         "prompt_version":
             prompt_version,
 
-        "model":
-            "gpt-4o-mini",
+        "model": 
+            model_config["model"],
+
+        "model_config": model_config,
 
         "metrics": {
 
@@ -444,7 +449,7 @@ def run_evaluation(prompt_version):
             prompt_version,
 
         model=
-            "gpt-4o-mini",
+            model_config["model"],
 
         total_tests=
             total_tests,
@@ -469,6 +474,9 @@ def run_evaluation(prompt_version):
                 average_latency,
                 2
             ),
+
+        model_config=
+            model_config,
     )
 
 

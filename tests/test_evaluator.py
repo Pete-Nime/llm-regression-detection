@@ -182,6 +182,12 @@ def test_full_evaluation(monkeypatch, tmp_path):
 
     report = json.loads(report_path.read_text())
 
+    # Verify the evaluation report remembers its AI settings.
+    expected_config = evaluator.get_model_config()
+
+    assert report["model"] == expected_config["model"]
+    assert report["model_config"] == expected_config
+
     assert report["metrics"]["total_tests"] == 2
     assert report["metrics"]["correct"] == 1
     assert report["metrics"]["incorrect"] == 1
@@ -191,7 +197,7 @@ def test_full_evaluation(monkeypatch, tmp_path):
 
     assert len(saved_history) == 1
 
-
+ 
 # ============================================================
 # TEST 6: INDIVIDUAL TEST CASE ERROR
 # ============================================================
